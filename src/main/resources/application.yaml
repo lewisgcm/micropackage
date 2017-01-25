@@ -1,0 +1,5 @@
+microservice:
+  status:
+    purge: 5000
+    down: 500
+    timeout: 50

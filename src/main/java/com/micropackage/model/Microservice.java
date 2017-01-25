@@ -12,7 +12,7 @@ import java.util.UUID;
  * Created by lmaitland on 22/01/2017.
  */
 @Entity
-public class Microservice implements Serializable {
+public class MicroService implements Serializable {
 
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
@@ -20,7 +20,7 @@ public class Microservice implements Serializable {
 
     private StatusType status;
 
-    @Transient
+    @ManyToOne
     private Package _package;
 
     private URL location;

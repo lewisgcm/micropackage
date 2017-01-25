@@ -17,15 +17,10 @@ public class Package implements Serializable {
     private UUID id;
 
     private String name;
+    private String version;
 
-    @Transient()
-    private Version version;
-
-    @Transient()
+    @ManyToMany
     private Set<Package> dependencies;
-
-    @Transient()
-    private Set<Microservice> microservices;
 
     public String getName() {
         return name;
@@ -35,11 +30,11 @@ public class Package implements Serializable {
         this.name = name;
     }
 
-    public Version getVersion() {
+    public String getVersion() {
         return version;
     }
 
-    public void setVersion(Version version) {
+    public void setVersion(String version) {
         this.version = version;
     }
 
@@ -57,13 +52,5 @@ public class Package implements Serializable {
 
     public void setId(UUID id) {
         this.id = id;
-    }
-
-    public Set<Microservice> getMicroservices() {
-        return microservices;
-    }
-
-    public void setMicroservices(Set<Microservice> microservices) {
-        this.microservices = microservices;
     }
 }

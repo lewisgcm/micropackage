@@ -1,61 +1,74 @@
 package com.micropackage.service;
 
-import com.micropackage.model.Microservice;
-import com.micropackage.repository.MicroserviceRepository;
+import com.micropackage.configuration.MicroServiceConfiguration;
+import com.micropackage.model.MicroService;
+import com.micropackage.model.Package;
+import com.micropackage.repository.MicroServiceRepository;
 import com.micropackage.type.StatusType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.net.URL;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 /**
  * Created by lmaitland on 23/01/2017.
  */
 @Service
-public class MicroserviceService {
+public class MicroServiceService {
 
-    public static final int MICROSERVICE_PURGE_MILLISECONDS = 60*60*60*2; // 2 HOURS
-    public static final int MICROSERVICE_DOWN_MILLISECONDS = 60*60*60; //1 HOUR
-    public static final int MICROSERVICE_TIMEOUT_MILLISECONDS = 60*60*30; // 30 Minutes
-
-    private MicroserviceRepository repository;
+    private MicroServiceRepository repository;
+    private MicroServiceConfiguration configuration;
 
     @Autowired
-    public MicroserviceService( MicroserviceRepository repository) {
+    public MicroServiceService(
+            MicroServiceRepository repository,
+            MicroServiceConfiguration configuration ) {
+        this.configuration = configuration;
         this.repository = repository;
     }
 
-    public Microservice findById(UUID id) {
+    public MicroService create(Package _package, URL location) {
+        MicroService microservice = new MicroService();
+        microservice.setId( UUID.randomUUID() );
+        microservice.setLastKeepAlive( new Date() );
+        microservice.setPackage( _package );
+        microservice.setStatus( StatusType.UP );
+        microservice.setLocation( location );
+        microservice = save( microservice );
+        return microservice;
+    }
+
+    public MicroService findById(UUID id) {
         return repository.findById( id );
     }
 
-    public Microservice save(Microservice microservice) {
+    public MicroService save(MicroService microservice) {
         return repository.save( microservice );
     }
 
-    public List<Microservice> findAll() {
+    public List<MicroService> findAll() {
         return repository.findAll();
     }
 
     //Updates microservice status based on keep alive
-    public void updateMicroserviceStatus() {
+    //Purge older
+    @Transactional
+    public void updateAndPurgeMicroservices() {
         repository.updateMicroserviceStatus(
-                new Date(System.currentTimeMillis()-MICROSERVICE_TIMEOUT_MILLISECONDS),
+                new Date(System.currentTimeMillis()-configuration.STATUS_TIMEOUT_MILLISECONDS),
                 StatusType.TIMEOUT
         );
 
         repository.updateMicroserviceStatus(
-                new Date(System.currentTimeMillis()-MICROSERVICE_DOWN_MILLISECONDS),
+                new Date(System.currentTimeMillis()-configuration.STATUS_DOWN_MILLISECONDS),
                 StatusType.DOWN
         );
-    }
-
-    public void purgeOldMicroservices() {
         repository.removeMicroserviceBeforeKeepalive( new Date(
-                System.currentTimeMillis()-MICROSERVICE_PURGE_MILLISECONDS
+                System.currentTimeMillis()-configuration.STATUS_PURGE_MILLISECONDS
         ) );
     }
 }

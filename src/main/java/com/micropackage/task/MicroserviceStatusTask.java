@@ -1,31 +1,30 @@
 package com.micropackage.task;
 
-import com.micropackage.service.MicroserviceService;
+import com.micropackage.service.MicroServiceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Created by lmaitland on 24/01/2017.
  */
 @Component
-public class MicroserviceStatusTask {
+public class MicroServiceStatusTask {
 
-    private static final Logger log = LoggerFactory.getLogger(MicroserviceStatusTask.class);
+    private static final Logger log = LoggerFactory.getLogger(MicroServiceStatusTask.class);
 
-    private MicroserviceService service;
+    private MicroServiceService service;
 
-    public MicroserviceStatusTask( MicroserviceService service ){
+    @Autowired
+    public MicroServiceStatusTask(MicroServiceService service ){
         this.service = service;
     }
 
-    @Transactional
     @Scheduled(fixedRate = 5000)
     public void reportCurrentTime() {
-        service.updateMicroserviceStatus();
-        service.purgeOldMicroservices();
+        service.updateAndPurgeMicroservices();
         log.info( "Finished purging and updating all microservice status" );
     }
 }
