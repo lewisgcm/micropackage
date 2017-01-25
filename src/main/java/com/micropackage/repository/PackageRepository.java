@@ -12,4 +12,5 @@ import java.util.UUID;
  */
 @Component
 public interface PackageRepository extends JpaRepository<Package, UUID> {
+    Package findByNameAndVersion(String name, String version);
 }

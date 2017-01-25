@@ -18,6 +18,8 @@ public class MicroService implements Serializable {
     @GeneratedValue(strategy= GenerationType.AUTO)
     private UUID id;
 
+    private String region;
+
     private StatusType status;
 
     @ManyToOne
@@ -65,5 +67,13 @@ public class MicroService implements Serializable {
 
     public void setId(UUID id) {
         this.id = id;
+    }
+
+    public String getRegion() {
+        return region;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
     }
 }

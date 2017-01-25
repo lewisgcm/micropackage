@@ -1,13 +1,14 @@
 package com.micropackage.controller;
 
 import com.micropackage.model.MicroService;
-import com.micropackage.model.Package;
+import com.micropackage.model.MicroServiceRegistration;
 import com.micropackage.service.MicroServiceService;
 import com.micropackage.service.PackageService;
 import com.micropackage.type.StatusType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -37,19 +38,18 @@ public class MicroServiceController {
     }
 
     @RequestMapping(value = "/index.json", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public MicroService register(Package aPackage, HttpServletRequest request) throws Exception {
-
+    public MicroService register(@RequestBody MicroServiceRegistration registration, HttpServletRequest request) throws Exception {
         InetAddress address = InetAddress.getByName( request.getRemoteAddr() );
         String url;
-
         if( address instanceof Inet4Address ) {
             url = "http://" + request.getRemoteAddr();
         } else {
             url = "http://[" + request.getRemoteAddr() + "]";
         }
-        Package saved = packageService.save( aPackage );
-        MicroService microservice = service.create( saved, new URL( url ) );
-        return microservice;
+        if( registration.getLocation() == null ) {
+            registration.setLocation( new URL(url) );
+        }
+        return service.register( registration );
     }
 
     @RequestMapping(value = "/index.json", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -58,11 +58,10 @@ public class MicroServiceController {
     }
 
     @RequestMapping(value = "/keepalive/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public void keepAlive(@PathVariable UUID id) {
-        MicroService microservice = service.findById( id );
-        microservice.setStatus( StatusType.UP );
-        microservice.setLastKeepAlive( new Date() );
-        service.save( microservice );
+    public ResponseEntity keepAlive(@PathVariable UUID id) {
+        if( !service.keepAlive( id ) ) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.noContent().build();
     }
 }
