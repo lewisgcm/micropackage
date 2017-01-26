@@ -5,6 +5,8 @@ import com.micropackage.model.MicroService;
 import com.micropackage.model.MicroServiceRegistration;
 import com.micropackage.repository.MicroServiceRepository;
 import com.micropackage.type.StatusType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +20,8 @@ import java.util.UUID;
  */
 @Service
 public class MicroServiceService {
+
+    private static final Logger log = LoggerFactory.getLogger(MicroServiceService.class);
 
     private MicroServiceRepository repository;
     private MicroServiceConfiguration configuration;
@@ -42,6 +46,12 @@ public class MicroServiceService {
         microservice.setLocation( registration.getLocation() );
         microservice.setRegion( registration.getRegion() );
         microservice = repository.save( microservice );
+        log.info(
+                "Registering new MicroService %s, package %s@%s",
+                microservice.getId(),
+                microservice.getPackage().getName(),
+                microservice.getPackage().getVersion()
+        );
         return microservice;
     }
 
@@ -54,6 +64,7 @@ public class MicroServiceService {
         microservice.setStatus( StatusType.UP );
         microservice.setLastKeepAlive( new Date() );
         repository.save( microservice );
+        log.info( "MicroService %s received keep-alive", id );
         return true;
     }
 
@@ -63,6 +74,7 @@ public class MicroServiceService {
             return false;
         }
         repository.delete( microservice );
+        log.info( "MicroService %s removed", id );
         return true;
     }
 
