@@ -1,4 +1,5 @@
 package com.micropackage.model;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import sun.misc.Version;
 
 import javax.persistence.*;
@@ -12,8 +13,9 @@ import java.util.UUID;
 @Entity()
 public class Package implements Serializable {
 
+    @JsonIgnore
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
+    @GeneratedValue(strategy=GenerationType.AUTO)
     private UUID id;
 
     private String name;

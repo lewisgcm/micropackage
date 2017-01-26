@@ -5,6 +5,9 @@ import com.micropackage.repository.PackageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -21,24 +24,26 @@ public class PackageService {
     }
 
     public Package register(Package aPackage){
-        Package existing = createOrFind( aPackage );
+        Set<Package> dependencies = new HashSet<>();
         //Register Dependencies if defined
         if( aPackage.getDependencies() != null ) {
-            existing.setDependencies(
                     aPackage
-                        .getDependencies()
-                        .stream()
-                        .map( d -> createOrFind(d) )
-                        .collect(Collectors.toSet()) );
+                            .getDependencies()
+                            .stream()
+                            .map( d -> createOrFind(d) )
+                            .forEach( d -> dependencies.add(d) );
         }
+        aPackage.setDependencies( dependencies );
+        Package existing = createOrFind( aPackage );
         return existing;
     }
 
     public Package createOrFind(Package aPackage){
         Package existing = repository.findByNameAndVersion( aPackage.getName(), aPackage.getVersion() );
-        if( existing == null ) {
-            existing = repository.save( aPackage );
+        if( existing != null ) {
+            aPackage.setId( existing.getId() );
         }
+        existing = repository.save( aPackage );
         return existing;
     }
 }
