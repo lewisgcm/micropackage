@@ -4,9 +4,7 @@ import com.micropackage.model.MicroService;
 import com.micropackage.model.MicroServiceRegistration;
 import com.micropackage.service.MicroServiceService;
 import com.micropackage.service.PackageService;
-import com.micropackage.type.StatusType;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +13,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.URL;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,14 +24,11 @@ import java.util.UUID;
 public class MicroServiceController {
 
     private MicroServiceService service;
-    private PackageService packageService;
 
     @Autowired
     public MicroServiceController(
-            MicroServiceService service,
-            PackageService packageService ) {
+            MicroServiceService service) {
         this.service = service;
-        this.packageService = packageService;
     }
 
     @RequestMapping(value = "/index.json", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -57,9 +51,17 @@ public class MicroServiceController {
         return service.findAll();
     }
 
-    @RequestMapping(value = "/keepalive/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/keepalive/{id}", method = RequestMethod.PUT)
     public ResponseEntity keepAlive(@PathVariable UUID id) {
         if( !service.keepAlive( id ) ) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.noContent().build();
+    }
+
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    public ResponseEntity delete(@PathVariable UUID id) {
+        if( !service.delete( id ) ) {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.noContent().build();

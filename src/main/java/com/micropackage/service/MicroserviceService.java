@@ -57,6 +57,15 @@ public class MicroServiceService {
         return true;
     }
 
+    public Boolean delete(UUID id) {
+        MicroService microservice = repository.findById( id );
+        if(microservice == null ) {
+            return false;
+        }
+        repository.delete( microservice );
+        return true;
+    }
+
     public List<MicroService> findAll() {
         return repository.findAll();
     }
