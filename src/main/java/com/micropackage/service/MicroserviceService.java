@@ -68,6 +68,14 @@ public class MicroServiceService {
         return true;
     }
 
+    public MicroService findAvailableByPackageNameAndVersion(String name, String version) {
+        return repository.findAvailableByPackageNameAndVersion(name,version);
+    }
+
+    public MicroService find(UUID id) {
+        return repository.findById( id );
+    }
+
     public Boolean delete(UUID id) {
         MicroService microservice = repository.findById( id );
         if(microservice == null ) {

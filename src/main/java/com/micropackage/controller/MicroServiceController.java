@@ -3,7 +3,6 @@ package com.micropackage.controller;
 import com.micropackage.model.MicroService;
 import com.micropackage.model.MicroServiceRegistration;
 import com.micropackage.service.MicroServiceService;
-import com.micropackage.service.PackageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -44,6 +43,20 @@ public class MicroServiceController {
             registration.setLocation( new URL(url) );
         }
         return service.register( registration );
+    }
+
+    @RequestMapping(value="/available/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public MicroService getAvailableInstanceById(UUID id) {
+        return service.find( id );
+    }
+
+    @RequestMapping(value="/available/package/{name}/{version}/", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity getAvailableInstanceByPackage(@PathVariable String name, @PathVariable String version) {
+        MicroService microService = service.findAvailableByPackageNameAndVersion(name, version);
+        if( microService == null ) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(microService);
     }
 
     @RequestMapping(value = "/index.json", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)

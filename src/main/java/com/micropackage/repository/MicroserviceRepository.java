@@ -23,5 +23,8 @@ public interface MicroServiceRepository extends JpaRepository<MicroService, UUID
 
     @Modifying
     @Query("DELETE FROM MicroService m WHERE m.lastKeepAlive < ?1")
-    void removeMicroserviceBeforeKeepalive( Date date );
+    void removeMicroserviceBeforeKeepalive(Date date);
+
+    @Query("SELECT m FROM MicroService m WHERE m._package.name = ?1 and m._package.version = ?2 ORDER BY m.lastKeepAlive DESC")
+    MicroService findAvailableByPackageNameAndVersion(String name, String version);
 }
