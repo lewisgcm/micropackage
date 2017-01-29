@@ -50,7 +50,16 @@ public class MicroServiceController {
         return service.find( id );
     }
 
-    @RequestMapping(value="/available/package/{name}/{version}/", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value="/available/{region}/{name}/{version}/", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity getAvailableInstanceByPackage(@PathVariable String region, @PathVariable String name, @PathVariable String version) {
+        MicroService microService = service.findAvailableByPackageNameAndVersionAndRegion(name, version, region);
+        if( microService == null ) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(microService);
+    }
+
+    @RequestMapping(value="/available/{name}/{version}/", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getAvailableInstanceByPackage(@PathVariable String name, @PathVariable String version) {
         MicroService microService = service.findAvailableByPackageNameAndVersion(name, version);
         if( microService == null ) {

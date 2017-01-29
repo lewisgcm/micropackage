@@ -8,6 +8,7 @@ import com.micropackage.type.StatusType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -68,8 +69,35 @@ public class MicroServiceService {
         return true;
     }
 
+    public MicroService findAvailableByPackageNameAndVersionAndRegion(String name, String version, String region) {
+        List<MicroService> available = repository
+                .findAvailableByPackageNameAndVersionAndRegionAndStatus(
+                        name,
+                        version,
+                        region,
+                        StatusType.UP,
+                        new PageRequest(0,1)
+                );
+        if( available.size() == 0 ) {
+            return null;
+        } else {
+            return available.get(0);
+        }
+    }
+
     public MicroService findAvailableByPackageNameAndVersion(String name, String version) {
-        return repository.findAvailableByPackageNameAndVersion(name,version);
+        List<MicroService> available = repository
+                .findAvailableByPackageNameAndVersionAndStatus(
+                        name,
+                        version,
+                        StatusType.UP,
+                        new PageRequest(0,1)
+                );
+        if( available.size() == 0 ) {
+            return null;
+        } else {
+            return available.get(0);
+        }
     }
 
     public MicroService find(UUID id) {
